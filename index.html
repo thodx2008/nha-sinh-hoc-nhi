@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b5d4b" />
+  <title>Thử thách Nhà sinh học nhí</title>
+  <style>
+    :root{
+      --bg1:#e8fff7;
+      --bg2:#eaf4ff;
+      --card:#ffffffee;
+      --ink:#16352e;
+      --muted:#5d756f;
+      --green:#177c63;
+      --green2:#2ab58b;
+      --blue:#2c77d4;
+      --gold:#f4b844;
+      --danger:#d25b66;
+      --shadow:0 18px 50px rgba(26,77,67,.16);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-rounded,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(42,181,139,.18), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(44,119,212,.16), transparent 28%),
+        linear-gradient(145deg,var(--bg1),var(--bg2));
+      overflow-x:hidden;
+    }
+    button{font:inherit}
+    .app{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+    .shell{
+      width:min(1120px,100%);
+      min-height:min(760px,calc(100vh - 44px));
+      background:rgba(255,255,255,.74);
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .lab-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .bubble{position:absolute;border-radius:50%;border:2px solid rgba(23,124,99,.16);animation:float 7s ease-in-out infinite}
+    .b1{width:110px;height:110px;left:-35px;top:100px}
+    .b2{width:70px;height:70px;right:5%;top:8%;animation-delay:1.2s}
+    .b3{width:140px;height:140px;right:-50px;bottom:70px;animation-delay:2s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+
+    .screen{display:none;min-height:760px;padding:34px;position:relative;z-index:2}
+    .screen.active{display:flex;flex-direction:column}
+    .hero{display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-items:center;flex:1}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;background:#e9fff7;border:1px solid #c9f3e4;border-radius:999px;padding:8px 12px;font-weight:700;color:var(--green)}
+    h1{font-size:clamp(40px,6vw,76px);line-height:.98;margin:18px 0 16px;letter-spacing:-.035em}
+    .lead{font-size:clamp(18px,2.2vw,24px);line-height:1.55;color:#365c53;max-width:700px}
+    .rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0}
+    .rule{background:#fff;border:1px solid #dceee8;border-radius:18px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start}
+    .rule b{color:var(--green)}
+    .start-btn,.primary-btn{
+      border:0;border-radius:18px;background:linear-gradient(135deg,var(--green),var(--green2));
+      color:#fff;font-weight:800;padding:16px 24px;cursor:pointer;box-shadow:0 10px 24px rgba(23,124,99,.25);
+      transition:.18s transform,.18s box-shadow;
+    }
+    .start-btn:hover,.primary-btn:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(23,124,99,.3)}
+    .hero-art{
+      min-height:460px;border-radius:28px;background:
+        linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.75)),
+        linear-gradient(145deg,#d8fff0,#d9edff);
+      border:1px solid #d7eee7;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center
+    }
+    .lab-table{position:absolute;left:7%;right:7%;bottom:9%;height:24%;background:#d7b18a;border-radius:18px 18px 10px 10px;box-shadow:inset 0 8px rgba(255,255,255,.24)}
+    .rack{position:absolute;bottom:25%;display:flex;gap:12px;align-items:flex-end}
+    .tube{width:48px;height:118px;border:4px solid #f8ffff;border-top-width:8px;border-radius:11px 11px 22px 22px;background:linear-gradient(to top,#7fd8ff 0 48%,rgba(255,255,255,.35) 48%);box-shadow:0 10px 20px #0001}
+    .tube:nth-child(2){height:138px;background:linear-gradient(to top,#88e7af 0 60%,rgba(255,255,255,.35) 60%)}
+    .tube:nth-child(3){height:104px;background:linear-gradient(to top,#ffc974 0 40%,rgba(255,255,255,.35) 40%)}
+    .microscope{font-size:120px;filter:drop-shadow(0 10px 12px #0002);transform:translateY(-35px)}
+    .samples-preview{position:absolute;top:24px;left:24px;right:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .sample-mini{height:66px;background:#ffffffc9;border:1px dashed #9fcfc0;border-radius:16px;display:grid;place-items:center;font-weight:900;color:#6c968b}
+
+    .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .brand{font-weight:900;font-size:18px;display:flex;align-items:center;gap:9px}
+    .progress-wrap{flex:1;max-width:620px}
+    .progress-meta{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:7px;font-weight:700}
+    .progress{height:14px;background:#dcebe6;border-radius:99px;overflow:hidden}
+    .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--green2),var(--blue));border-radius:99px;transition:width .35s ease}
+
+    .game-grid{display:grid;grid-template-columns:240px 1fr;gap:22px;flex:1}
+    .sample-panel{background:#f7fffb;border:1px solid #dcefe8;border-radius:24px;padding:18px}
+    .sample-panel h3{margin:0 0 14px;font-size:16px;color:#456c62}
+    .sample-list{display:grid;gap:10px}
+    .sample{
+      display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:15px;background:#fff;border:1px solid #e3efe9;
+      transition:.2s
+    }
+    .sample .icon{width:42px;height:42px;border-radius:13px;background:#eef7f4;display:grid;place-items:center;font-size:22px}
+    .sample.locked{opacity:.58}
+    .sample.current{border-color:#8bd9bf;box-shadow:0 0 0 3px #dffff3}
+    .sample.done{background:#ecfff6;border-color:#bcebd9}
+    .sample.done .icon{background:#cff4e3}
+    .sample-label{font-size:13px;color:#6c827d}
+    .sample-name{font-weight:800;font-size:14px}
+
+    .question-card{background:var(--card);border:1px solid #dceae5;border-radius:28px;padding:28px;box-shadow:0 12px 34px rgba(23,75,62,.08);display:flex;flex-direction:column}
+    .level{display:inline-flex;align-self:flex-start;padding:7px 11px;border-radius:999px;background:#eef5ff;color:#2e66a5;font-weight:800;font-size:13px}
+    .qnum{margin:14px 0 8px;color:var(--green);font-weight:900}
+    .question{font-size:clamp(22px,2.7vw,34px);line-height:1.25;margin:0 0 18px}
+    .scenario{background:#f3faf7;border-left:5px solid #7bd6b7;padding:14px 16px;border-radius:14px;margin-bottom:18px;color:#365b53;line-height:1.55}
+    .answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:auto}
+    .answer-btn{
+      min-height:78px;border:1px solid #dce8e4;border-radius:19px;background:#fff;padding:16px;text-align:left;cursor:pointer;
+      display:flex;gap:12px;align-items:center;color:var(--ink);font-weight:750;box-shadow:0 7px 16px #173d3310;transition:.16s
+    }
+    .answer-btn:hover{transform:translateY(-2px);border-color:#88cdb7;box-shadow:0 10px 18px #173d3317}
+    .letter{flex:0 0 38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#eff8f5;color:var(--green);font-weight:900}
+    .answer-btn:focus-visible,.start-btn:focus-visible,.primary-btn:focus-visible,.secondary-btn:focus-visible{outline:4px solid #9bc8ff;outline-offset:3px}
+
+    .feedback{display:none;position:absolute;inset:0;background:rgba(11,47,39,.46);backdrop-filter:blur(4px);z-index:10;padding:20px;align-items:center;justify-content:center}
+    .feedback.show{display:flex}
+    .feedback-card{width:min(600px,100%);background:#fff;border-radius:28px;padding:30px;text-align:center;box-shadow:0 22px 70px rgba(0,0,0,.22);animation:pop .22s ease}
+    @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+    .feedback-icon{font-size:72px;margin-bottom:8px}
+    .feedback-card h2{font-size:32px;margin:6px 0 10px}
+    .feedback-card p{font-size:18px;line-height:1.55;color:#45635b}
+    .hint{background:#fff8e8;border:1px solid #f4ddb0;border-radius:16px;padding:14px;margin:16px 0;color:#745622}
+    .secondary-btn{border:1px solid #cfded9;background:#fff;color:var(--ink);font-weight:800;padding:14px 20px;border-radius:16px;cursor:pointer}
+
+    .finish{display:grid;place-items:center;text-align:center;flex:1}
+    .finish-inner{max-width:800px}
+    .unlock{font-size:92px;animation:bounce 1.7s ease-in-out infinite}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .finish h2{font-size:clamp(36px,5vw,64px);margin:8px 0 10px}
+    .finish p{font-size:20px;color:#49675f}
+    .reflection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}
+    .reflect-btn{border:1px solid #d8e8e2;background:#fff;border-radius:18px;padding:16px;cursor:pointer;text-align:left;font-weight:750;min-height:82px}
+    .reflect-btn:hover{border-color:#8dd5bd;background:#f7fffb}
+    .reflect-btn.selected{border-color:#2ab58b;background:#eafff6;box-shadow:0 0 0 3px #c9f3e5}
+    .final-msg{display:none;margin:14px auto 0;padding:14px 16px;border-radius:16px;background:#eafff5;color:#176a55;font-weight:800;max-width:640px}
+    .final-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+    .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .confetti span{position:absolute;font-size:24px;animation:fall 3.5s linear infinite;opacity:.85}
+    @keyframes fall{from{transform:translateY(-70px) rotate(0)}to{transform:translateY(850px) rotate(420deg)}}
+
+    @media (max-width:860px){
+      .screen{padding:20px;min-height:100vh}
+      .shell{min-height:100vh;border-radius:0}
+      .app{padding:0}
+      .hero{grid-template-columns:1fr}
+      .hero-art{min-height:320px}
+      .game-grid{grid-template-columns:1fr}
+      .sample-panel{order:2}
+      .sample-list{grid-template-columns:repeat(3,1fr)}
+      .sample{padding:8px}
+      .sample .icon{display:none}
+      .answers,.reflection{grid-template-columns:1fr}
+      .rules{grid-template-columns:1fr}
+      .topbar{align-items:flex-start;flex-direction:column}
+      .progress-wrap{width:100%;max-width:none}
+    }
+    @media (max-width:520px){
+      h1{font-size:43px}
+      .question-card{padding:20px}
+      .answer-btn{min-height:68px}
+      .sample-list{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="shell">
+      <div class="lab-deco" aria-hidden="true">
+        <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+      </div>
+
+      <section id="startScreen" class="screen active">
+        <div class="hero">
+          <div>
+            <span class="eyebrow">🧪 Khoa học tự nhiên 6 • Đa dạng thế giới sống</span>
+            <h1>Thử thách<br>Nhà sinh học nhí</h1>
+            <p class="lead">
+              6 mẫu vật trong phòng thí nghiệm đã bị thất lạc nhãn. Em hãy dùng kiến thức về thế giới sống
+              để phân loại đúng và mở khóa phòng thí nghiệm!
+            </p>
+            <div class="rules" aria-label="Luật chơi">
+              <div class="rule"><span>🔎</span><div><b>6 mẫu vật</b><br>Mỗi mẫu vật là 1 câu hỏi.</div></div>
+              <div class="rule"><span>🔤</span><div><b>4 lựa chọn</b><br>Chọn A, B, C hoặc D.</div></div>
+              <div class="rule"><span>💡</span><div><b>Chưa đúng?</b><br>Nhận gợi ý và thử lại.</div></div>
+              <div class="rule"><span>🔓</span><div><b>Hoàn thành</b><br>Mở khóa phòng thí nghiệm.</div></div>
+            </div>
+            <button class="start-btn" id="startBtn">BẮT ĐẦU THỬ THÁCH →</button>
+          </div>
+
+          <div class="hero-art" aria-label="Minh họa phòng thí nghiệm">
+            <div class="samples-preview">
+              <div class="sample-mini">? 1</div><div class="sample-mini">? 2</div><div class="sample-mini">? 3</div>
+              <div class="sample-mini">? 4</div><div class="sample-mini">? 5</div><div class="sample-mini">? 6</div>
+            </div>
+            <div class="microscope">🔬</div>
+            <div class="rack"><div class="tube"></div><div class="tube"></div><div class="tube"></div></div>
+            <div class="lab-table"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="screen">
+        <div class="topbar">
+          <div class="brand">🧬 Nhà sinh học nhí</div>
+          <div class="progress-wrap">
+            <div class="progress-meta"><span id="progressText">Mẫu vật 1/6</span><span id="progressPercent">0%</span></div>
+            <div class="progress"><div id="progressBar"></div></div>
+          </div>
+        </div>
+
+        <div class="game-grid">
+          <aside class="sample-panel">
+            <h3>🔐 Tủ mẫu vật</h3>
+            <div id="sampleList" class="sample-list"></div>
+          </aside>
+
+          <article class="question-card">
+            <span id="level" class="level">Nhận biết</span>
+            <div id="qnum" class="qnum">Mẫu vật 1/6</div>
+            <h2 id="questionText" class="question"></h2>
+            <div id="scenario" class="scenario" style="display:none"></div>
+            <div id="answers" class="answers"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="finishScreen" class="screen">
+        <div class="confetti" aria-hidden="true" id="confetti"></div>
+        <div class="finish">
+          <div class="finish-inner">
+            <div class="unlock">🔓</div>
+            <h2>Chúc mừng, Nhà sinh học nhí!</h2>
+            <p><strong>Bạn đã mở khóa phòng thí nghiệm – hãy chọn 1 điều mới em học được.</strong></p>
+
+            <div class="reflection">
+              <button class="reflect-btn">🌱 Em biết sinh vật có thể được chia thành nhiều nhóm khác nhau.</button>
+              <button class="reflect-btn">🍄 Em biết một số đặc điểm giúp phân biệt thực vật, động vật và nấm.</button>
+              <button class="reflect-btn">🧭 Em hiểu vì sao các nhà khoa học cần phân loại sinh vật.</button>
+              <button class="reflect-btn">🔎 Em biết có thể dựa vào đặc điểm để dự đoán sinh vật thuộc nhóm nào.</button>
+            </div>
+
+            <div id="finalMsg" class="final-msg">Rất tốt! Hãy mang điều em vừa học được vào bài học tiếp theo nhé! 🌟</div>
+            <div class="final-actions">
+              <button class="secondary-btn" id="restartBtn">↻ CHƠI LẠI</button>
+              <button class="primary-btn" id="completeBtn">✓ HOÀN THÀNH</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="feedback" class="feedback" role="dialog" aria-modal="true">
+        <div class="feedback-card">
+          <div id="feedbackIcon" class="feedback-icon"></div>
+          <h2 id="feedbackTitle"></h2>
+          <p id="feedbackText"></p>
+          <div id="hintBox" class="hint" style="display:none"></div>
+          <button id="feedbackBtn" class="primary-btn"></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+const questions = [
+  {
+    level:"Nhận biết",
+    question:"Sinh vật nào dưới đây thuộc giới Thực vật?",
+    answers:["Cây lúa","Con mèo","Nấm rơm","Vi khuẩn"],
+    correct:0,
+    icon:"🌾",
+    sampleName:"Cây lúa",
+    praise:"Chính xác! Mẫu vật số 1 đã được nhận diện.",
+    explain:"Cây lúa thuộc giới Thực vật vì có khả năng quang hợp và tự tạo chất hữu cơ.",
+    hint:"Nhóm sinh vật cần tìm có diệp lục và có khả năng tự tạo thức ăn nhờ ánh sáng."
+  },
+  {
+    level:"Nhận biết",
+    question:"Sinh vật nào sau đây thuộc giới Nấm?",
+    answers:["Trùng roi","Nấm men","Cây rêu","Cá chép"],
+    correct:1,
+    icon:"🍞",
+    sampleName:"Nấm men",
+    praise:"Tuyệt vời! Em đã nhận diện đúng mẫu vật số 2.",
+    explain:"Nấm men thuộc giới Nấm; chúng không có diệp lục và thường lấy chất dinh dưỡng từ môi trường.",
+    hint:"Hãy tìm sinh vật không phải động vật, không phải thực vật và thường được dùng trong quá trình lên men."
+  },
+  {
+    level:"Thông hiểu",
+    question:"Tại sao các nhà khoa học cần phân loại sinh vật?",
+    answers:[
+      "Để làm cho số lượng sinh vật ít đi",
+      "Để thuận tiện nhận biết, nghiên cứu và xác định quan hệ giữa các sinh vật",
+      "Để chỉ tìm những sinh vật có ích",
+      "Để thay đổi đặc điểm của sinh vật"
+    ],
+    correct:1,
+    icon:"🗂️",
+    sampleName:"Hệ phân loại",
+    praise:"Rất tốt! Em đang suy nghĩ như một nhà sinh học.",
+    explain:"Phân loại giúp sắp xếp sinh vật thành các nhóm, thuận tiện cho việc nhận biết, nghiên cứu và tìm hiểu mối quan hệ giữa chúng.",
+    hint:"Hãy nghĩ xem khi có rất nhiều loài sinh vật, các nhà khoa học cần làm gì để dễ nghiên cứu chúng."
+  },
+  {
+    level:"Thông hiểu",
+    question:"Cá chép và mèo đều được xếp vào giới Động vật vì đặc điểm nào sau đây?",
+    answers:[
+      "Đều có khả năng quang hợp",
+      "Đều tự tạo được thức ăn",
+      "Đều lấy chất dinh dưỡng từ sinh vật khác và có khả năng vận động",
+      "Đều sống dưới nước"
+    ],
+    correct:2,
+    icon:"🐟",
+    sampleName:"Động vật",
+    praise:"Xuất sắc! Mẫu vật số 4 đã được phân loại.",
+    explain:"Động vật không tự tạo thức ăn như thực vật mà lấy chất dinh dưỡng từ sinh vật khác và phần lớn có khả năng vận động.",
+    hint:"Cá và mèo sống ở môi trường khác nhau, vì vậy hãy tìm đặc điểm liên quan đến dinh dưỡng và vận động."
+  },
+  {
+    level:"Vận dụng",
+    scenario:"Trong chuyến khảo sát sân trường, Minh quan sát thấy một sinh vật: cơ thể màu xanh, sống cố định trên đất và có khả năng tạo chất dinh dưỡng nhờ ánh sáng.",
+    question:"Minh nên xếp sinh vật này vào nhóm nào?",
+    answers:["Động vật","Thực vật","Nấm","Vi khuẩn"],
+    correct:1,
+    icon:"🌿",
+    sampleName:"Thực vật",
+    praise:"Chính xác! Em đã biết vận dụng đặc điểm để phân loại sinh vật.",
+    explain:"Khả năng quang hợp và tự tạo chất hữu cơ là đặc điểm quan trọng giúp nhận biết thực vật.",
+    hint:"Chi tiết quan trọng nhất là sinh vật có thể tạo chất dinh dưỡng nhờ ánh sáng."
+  },
+  {
+    level:"Vận dụng",
+    scenario:"Lan phát hiện một sinh vật nhỏ trên miếng bánh mì để lâu. Sinh vật này không có màu xanh, không tự tạo được thức ăn, hấp thụ chất dinh dưỡng từ bánh mì và phát triển thành các mảng giống sợi nhỏ.",
+    question:"Sinh vật đó nhiều khả năng thuộc nhóm nào?",
+    answers:["Thực vật","Động vật","Nấm","Cá"],
+    correct:2,
+    icon:"🍄",
+    sampleName:"Nấm mốc",
+    praise:"Tuyệt vời! Mẫu vật cuối cùng đã được xác định.",
+    explain:"Nấm mốc không có diệp lục, không tự tạo thức ăn mà hấp thụ chất dinh dưỡng từ môi trường sống.",
+    hint:"Hãy nhớ đến loại sinh vật thường xuất hiện trên bánh mì hoặc thức ăn để lâu."
+  }
+];
+
+let current = 0;
+let completed = Array(questions.length).fill(false);
+
+const $ = s => document.querySelector(s);
+const startScreen = $("#startScreen");
+const gameScreen = $("#gameScreen");
+const finishScreen = $("#finishScreen");
+const feedback = $("#feedback");
+
+function showScreen(el){
+  [startScreen,gameScreen,finishScreen].forEach(x=>x.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function renderSamples(){
+  const list = $("#sampleList");
+  list.innerHTML = "";
+  questions.forEach((q,i)=>{
+    const div = document.createElement("div");
+    div.className = "sample " + (completed[i] ? "done" : "locked") + (i===current && !completed[i] ? " current" : "");
+    div.innerHTML = `
+      <div class="icon">${completed[i] ? q.icon : "🔒"}</div>
+      <div>
+        <div class="sample-label">Mẫu vật ${i+1}</div>
+        <div class="sample-name">${completed[i] ? q.sampleName : "Chưa nhận diện"}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderQuestion(){
+  const q = questions[current];
+  $("#level").textContent = q.level;
+  $("#qnum").textContent = `Mẫu vật ${current+1}/6`;
+  $("#progressText").textContent = `Mẫu vật ${current+1}/6`;
+  const doneCount = completed.filter(Boolean).length;
+  const pct = Math.round(doneCount/questions.length*100);
+  $("#progressPercent").textContent = `${pct}%`;
+  $("#progressBar").style.width = `${pct}%`;
+  $("#questionText").textContent = q.question;
+
+  const scenario = $("#scenario");
+  if(q.scenario){
+    scenario.style.display = "block";
+    scenario.textContent = q.scenario;
+  } else {
+    scenario.style.display = "none";
+    scenario.textContent = "";
+  }
+
+  const answers = $("#answers");
+  answers.innerHTML = "";
+  q.answers.forEach((a,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "answer-btn";
+    btn.innerHTML = `<span class="letter">${String.fromCharCode(65+i)}</span><span>${a}</span>`;
+    btn.addEventListener("click",()=>checkAnswer(i));
+    answers.appendChild(btn);
+  });
+  renderSamples();
+}
+
+function checkAnswer(index){
+  const q = questions[current];
+  const right = index === q.correct;
+  $("#feedbackIcon").textContent = right ? "🎉" : "💡";
+  $("#feedbackTitle").textContent = right ? q.praise : "Chưa chính xác, em thử lại nhé!";
+  $("#feedbackText").textContent = right ? q.explain : "Một nhà sinh học giỏi luôn quan sát đặc điểm và thử lại từ gợi ý.";
+  const hintBox = $("#hintBox");
+  const btn = $("#feedbackBtn");
+
+  if(right){
+    completed[current] = true;
+    hintBox.style.display = "none";
+    btn.textContent = current === questions.length-1 ? "MỞ KHÓA PHÒNG THÍ NGHIỆM" : "TIẾP TỤC";
+    btn.onclick = ()=>{
+      feedback.classList.remove("show");
+      if(current === questions.length-1){
+        launchFinish();
+      }else{
+        current++;
+        renderQuestion();
+      }
+    };
+  }else{
+    hintBox.style.display = "block";
+    hintBox.textContent = "Gợi ý: " + q.hint;
+    btn.textContent = "THỬ LẠI";
+    btn.onclick = ()=> feedback.classList.remove("show");
+  }
+  feedback.classList.add("show");
+}
+
+function launchFinish(){
+  $("#progressBar").style.width = "100%";
+  $("#progressPercent").textContent = "100%";
+  showScreen(finishScreen);
+  makeConfetti();
+}
+
+function makeConfetti(){
+  const box = $("#confetti");
+  box.innerHTML = "";
+  const items = ["🧬","🌿","🔬","✨","🧪","🍄"];
+  for(let i=0;i<22;i++){
+    const s = document.createElement("span");
+    s.textContent = items[i%items.length];
+    s.style.left = Math.random()*100 + "%";
+    s.style.animationDelay = (Math.random()*2.2) + "s";
+    s.style.animationDuration = (2.7 + Math.random()*2) + "s";
+    box.appendChild(s);
+  }
+}
+
+$("#startBtn").addEventListener("click",()=>{
+  current = 0;
+  completed = Array(questions.length).fill(false);
+  renderQuestion();
+  showScreen(gameScreen);
+});
+
+$("#restartBtn").addEventListener("click",()=>{
+  current = 0;
+  completed = Array(questions.length).fill(false);
+  document.querySelectorAll(".reflect-btn").forEach(b=>b.classList.remove("selected"));
+  $("#finalMsg").style.display = "none";
+  showScreen(startScreen);
+});
+
+document.querySelectorAll(".reflect-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".reflect-btn").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    $("#finalMsg").style.display = "block";
+  });
+});
+
+$("#completeBtn").addEventListener("click",()=>{
+  const selected = document.querySelector(".reflect-btn.selected");
+  if(!selected){
+    $("#finalMsg").style.display = "block";
+    $("#finalMsg").textContent = "Hãy chọn 1 điều mới em học được trước khi hoàn thành nhé! 🌱";
+    return;
+  }
+  $("#finalMsg").style.display = "block";
+  $("#finalMsg").textContent = "Hoàn thành! Em đã mở khóa phòng thí nghiệm. Hẹn gặp lại ở thử thách khoa học tiếp theo! 🏆";
+});
+</script>
+</body>
+</html>
